@@ -80,4 +80,10 @@ export default styles = StyleSheet.create({
         borderRadius: 5,
         width: 125
     },
+    itemSeparator: {
+        height: 1,
+        width: '186%',
+        backgroundColor: '#ced0ce',
+        marginLeft: '0%',
+    }
 });

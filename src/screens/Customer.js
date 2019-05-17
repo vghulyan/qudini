@@ -14,9 +14,29 @@ class Customer extends Component {
         data: {}
     };
 
-    filterResult = search => {
-        this.setState({search: search});
+    filterResult = ({search}) => {
+        this.setState({
+            value: search,
+        });
+
+        if(this.state.data.queueData.queue.customersToday.length > 0) {
+            const {customersToday} = this.state.data.queueData.queue;
+            const newData = customersToday.filter(item => {
+                const itemData = item.customer.name.toUpperCase();
+                const textData = search.toUpperCase();
+                return itemData.indexOf(textData) > -1;
+            });
+            // this.setState({
+            //     data : newData,
+            // });
+        }
     };
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            data: nextProps.customer,
+        });
+    }
 
     componentDidMount(): void {
         this.props.authenticate('codetest1', 'codetest100');
@@ -36,7 +56,8 @@ class Customer extends Component {
                             }}
                         />
                         <View>
-                            <Text style={styles.bold}>{item.customer.emailAddress}</Text>
+                            <Text style={styles.bold}>{item.customer.name}</Text>
+                            <Text style={[styles.bold, styles.small]}>{item.customer.emailAddress}</Text>
                             <TouchableOpacity onPress={() => console.log(item)}>
                                 <Text>Created: {item.customer.createdBy.displayName}</Text>
                             </TouchableOpacity>
@@ -50,12 +71,12 @@ class Customer extends Component {
         )
     };
 
+    renderSeparator = () => {
+        return ( <View style={styles.itemSeparator} /> );
+    };
+
     render() {
-        const { queueData } = this.props.customer;
-
-        if(queueData) {
-            const { customersToday } = queueData.queue;
-
+        if(this.state.data.queueData) {
             return (
                 <View style={styles.container}>
 
@@ -63,6 +84,7 @@ class Customer extends Component {
                         style={styles.input}
                         onChangeText={(search) => this.filterResult({search})}
                         value={this.state.search.value}
+                        autoCorrect={false}
                         returnKeyType='send'
                         placeholder='Search'
                     />
@@ -70,9 +92,10 @@ class Customer extends Component {
                     <View style={styles.container}>
                         <FlatList
                             refreshing={false}
-                            data={customersToday}
+                            data={this.state.data.queueData.queue.customersToday}
                             keyExtractor={(item) => item.customer.name}
                             renderItem={this._renderItem}
+                            ItemSeparatorComponent={this.renderSeparator}
                         />
                     </View>
                 </View>
